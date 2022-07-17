@@ -1,5 +1,4 @@
-import boardGame.board;
-import boardGame.position;
+
 import chess.chessMatch;
 
 public class App {

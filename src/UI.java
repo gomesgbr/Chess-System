@@ -1,5 +1,3 @@
-import javax.annotation.processing.SupportedOptions;
-
 import chess.chessPiece;
 
 public class UI {
