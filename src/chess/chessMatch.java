@@ -26,6 +26,12 @@ public class chessMatch {
         return mat; 
     }
 
+    public boolean[][] possibleMoves(chessPosition sourcePosition){
+        position position = sourcePosition.toPosition();
+        validateSourcePosition(position);
+        return board.piece(position).possibleMoves();
+    }
+
     private void placeNewPiece(char column, int row, chessPiece piece){
         board.placePiece(piece, new chessPosition(column, row).toPosition());
     }
