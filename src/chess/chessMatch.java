@@ -17,6 +17,7 @@ public class chessMatch {
     private List<piece> piecesOnTheBoard = new ArrayList<>();
     private List<piece> capturedPieces = new ArrayList<>();
     private boolean check;
+    private boolean checkMate;
     public chessMatch(){
         board = new board(8, 8);
 
@@ -25,6 +26,36 @@ public class chessMatch {
         initialSetup();
     }
 
+    public boolean getCheckMate(){
+        return this.checkMate;
+    }
+
+    private boolean testCheckMate(color color){
+        if(!testCheck(color)){
+            return false;
+        }
+
+        List<piece> list = piecesOnTheBoard.stream().filter(x ->((chessPiece) x).getColor() == color).collect(Collectors.toList());
+        
+        for(piece p: list){
+            boolean[][] mat = p.possibleMoves();
+            for(int i = 0; i < board.getRows(); i++){
+                for(int j = 0; j < board.getColumns(); j++){
+                    if(mat[i][j]){
+                        position source = ((chessPiece)p).getChessPosition().toPosition();
+                        position target = new position(i, j);
+                        piece capturedPiece = makeMove(source, target);
+                        boolean testCheck = testCheck(color);
+                        undoMove(source, target, capturedPiece);
+                        if(!testCheck){
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }   
 
     public int getTurn(){
         return this.turn;
@@ -62,19 +93,14 @@ public class chessMatch {
     }
 
     private void initialSetup(){
-        placeNewPiece('c', 1, new rook(board, color.WHITE));
-        placeNewPiece('c', 2, new rook(board, color.WHITE));
-        placeNewPiece('d', 2, new rook(board, color.WHITE));
-        placeNewPiece('e', 2, new rook(board, color.WHITE));
-        placeNewPiece('e', 1, new rook(board, color.WHITE));
-        placeNewPiece('d', 1, new king(board, color.WHITE));
+        
+        placeNewPiece('h', 7, new rook(board, color.WHITE));
+        placeNewPiece('d', 1, new rook(board, color.WHITE));
+        placeNewPiece('e', 1, new king(board, color.WHITE));
 
-        placeNewPiece('c', 7, new rook(board, color.BLACK));
-        placeNewPiece('c', 8, new rook(board, color.BLACK));
-        placeNewPiece('d', 7, new rook(board, color.BLACK));
-        placeNewPiece('e', 7, new rook(board, color.BLACK));
-        placeNewPiece('e', 8, new rook(board, color.BLACK));
-        placeNewPiece('d', 8, new king(board, color.BLACK));
+        
+        placeNewPiece('b', 8, new rook(board, color.BLACK));
+        placeNewPiece('a', 8, new king(board, color.BLACK));
     }
 
     public chessPiece performChessMove(chessPosition sourcePosition, chessPosition targetPosition){
@@ -91,7 +117,12 @@ public class chessMatch {
 
         check = (testCheck(oponnent(currentPlayer)) ? true : false);
 
-        nextTurn();
+        if(testCheckMate(oponnent(currentPlayer))){
+            checkMate = true;
+        }else{
+            nextTurn();
+        }
+        
         return (chessPiece) capturedPiece;
     }
 
